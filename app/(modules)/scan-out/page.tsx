@@ -221,7 +221,8 @@ function ScanOut() {
         });
 
         // Silently refresh the full order state to get updated grid items and totals
-        const refreshResult = await validateOrderScanOut(activeOrder.orderNo);
+        // Passing Date.now() bypasses any aggressive caching in Next.js Server Actions
+        const refreshResult = await validateOrderScanOut(activeOrder.orderNo, Date.now());
         if (refreshResult.success && refreshResult.data) {
           setActiveOrder(refreshResult.data as OrderInfo);
         } else if (result.totals) {

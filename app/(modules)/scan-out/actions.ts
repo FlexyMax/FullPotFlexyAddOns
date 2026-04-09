@@ -5,7 +5,7 @@ import { executeRPC, sql } from "@/lib/db";
 /**
  * Validate order/invoice number to start the scan out process.
  */
-export async function validateOrderScanOut(orderNo: string) {
+export async function validateOrderScanOut(orderNo: string, _timestamp?: number) {
   try {
     const invoiceNo = parseInt(orderNo, 10);
     if (isNaN(invoiceNo)) {
