@@ -1,19 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Allow embedding in Appsmith iFrames
+  // Allow embedding in Appsmith iFrames and external URLs
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
           {
-            key: "X-Frame-Options",
-            value: "ALLOWALL",
+            // Specifically define framing rules over CSP
+            key: "Content-Security-Policy",
+            value: "frame-ancestors *;",
           },
           {
-            key: "Content-Security-Policy",
-            value: "frame-ancestors *",
+            // Enable CORS for API routes if needed by Appsmith scripts
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",
           },
         ],
       },
