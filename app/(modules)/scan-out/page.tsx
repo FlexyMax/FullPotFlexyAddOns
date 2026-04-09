@@ -220,14 +220,18 @@ function ScanOut() {
           orderNo: activeOrder.orderNo,
         });
 
-        // Update stats from the summary SP
-        if (result.totals) {
+        // Silently refresh the full order state to get updated grid items and totals
+        const refreshResult = await validateOrderScanOut(activeOrder.orderNo);
+        if (refreshResult.success && refreshResult.data) {
+          setActiveOrder(refreshResult.data as OrderInfo);
+        } else if (result.totals) {
+          // Fallback to updating just the totals if the full refresh fails
           setActiveOrder((prev) => 
             prev ? {
               ...prev,
-              scanned: result.totals.scanned,
-              toScan: result.totals.toScan,
-              total: result.totals.total
+              scanned: result.totals!.scanned,
+              toScan: result.totals!.toScan,
+              total: result.totals!.total,
             } : null
           );
         }
