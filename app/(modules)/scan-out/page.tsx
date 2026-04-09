@@ -61,6 +61,7 @@ function ScanOut() {
   const [scanInput, setScanInput] = useState("");
   const [scanHistory, setScanHistory] = useState<ScanOutItem[]>([]);
   const [activeTab, setActiveTab] = useState<"history" | "details">("history");
+  const [isStateLoaded, setIsStateLoaded] = useState(false);
 
   const orderInputRef = useRef<HTMLInputElement>(null);
   const scanInputRef = useRef<HTMLInputElement>(null);
@@ -68,6 +69,49 @@ function ScanOut() {
   useEffect(() => {
     notifyReady("scan-out");
   }, []);
+
+  // Persist State: Load on Mount
+  useEffect(() => {
+    if (!userUq) return;
+    try {
+      const saved = localStorage.getItem(`SCAN_OUT_STATE_${userUq}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.activeOrder) {
+          setActiveOrder(parsed.activeOrder);
+          setCurrentStep(parsed.currentStep || "invoice");
+          setInvoiceBarcode(parsed.invoiceBarcode || "");
+          
+          if (parsed.scanHistory && Array.isArray(parsed.scanHistory)) {
+            setScanHistory(parsed.scanHistory.map((item: any) => ({
+              ...item,
+              timestamp: new Date(item.timestamp)
+            })));
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error loading saved scan state:", e);
+    } finally {
+      setIsStateLoaded(true);
+    }
+  }, [userUq]);
+
+  // Persist State: Save on Changes
+  useEffect(() => {
+    if (!userUq || !isStateLoaded) return;
+    
+    if (activeOrder) {
+      localStorage.setItem(`SCAN_OUT_STATE_${userUq}`, JSON.stringify({
+        activeOrder,
+        currentStep,
+        invoiceBarcode,
+        scanHistory
+      }));
+    } else {
+      localStorage.removeItem(`SCAN_OUT_STATE_${userUq}`);
+    }
+  }, [activeOrder, currentStep, invoiceBarcode, scanHistory, userUq, isStateLoaded]);
 
   // Focus management based on active phase
   useEffect(() => {
@@ -221,6 +265,14 @@ function ScanOut() {
             Required: <code className="bg-zinc-100 px-1.5 py-0.5 rounded text-xs text-zinc-600">lcUser_uq</code>
           </p>
         </div>
+      </div>
+    );
+  }
+
+  if (!isStateLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-zinc-50">
+        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
       </div>
     );
   }
