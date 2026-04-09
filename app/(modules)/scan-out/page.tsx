@@ -166,7 +166,7 @@ function ScanOut() {
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
     const barcode = scanInput.trim();
-    if (!barcode || !userUq || !activeOrder) return;
+    if (!barcode || !userUq || !activeOrder || activeOrder.toScan === 0) return;
 
     setScanInput("");
 
@@ -457,10 +457,12 @@ function ScanOut() {
             <div className="relative group">
               <div
                 className={cn(
-                  "absolute -inset-1 rounded-2xl blur opacity-10 group-focus-within:opacity-20 transition duration-1000",
-                  currentStep === "invoice"
-                    ? "bg-gradient-to-r from-blue-600 to-cyan-600"
-                    : "bg-gradient-to-r from-violet-600 to-purple-600"
+                  "absolute -inset-1 rounded-2xl blur opacity-10 transition duration-1000",
+                  activeOrder.toScan === 0
+                    ? "bg-emerald-500 opacity-30"
+                    : "group-focus-within:opacity-20",
+                  activeOrder.toScan > 0 && currentStep === "invoice" && "bg-gradient-to-r from-blue-600 to-cyan-600",
+                  activeOrder.toScan > 0 && currentStep === "vendor" && "bg-gradient-to-r from-violet-600 to-purple-600"
                 )}
               />
               <form onSubmit={handleScan} className="relative">
@@ -469,16 +471,21 @@ function ScanOut() {
                   type="text"
                   value={scanInput}
                   onChange={(e) => setScanInput(e.target.value)}
+                  disabled={activeOrder.toScan === 0 || isPending}
                   placeholder={
-                    currentStep === "invoice"
+                    activeOrder.toScan === 0
+                      ? "ORDER SCANNED COMPLETELY"
+                      : currentStep === "invoice"
                       ? "Scan INVOICE Label..."
                       : "Scan VENDOR Label..."
                   }
                   className={cn(
-                    "w-full bg-white border-2 rounded-2xl px-8 py-6 text-3xl md:text-5xl font-black text-center placeholder:text-zinc-200 focus:outline-none focus:ring-4 transition-all uppercase text-zinc-900 shadow-sm",
-                    currentStep === "invoice"
-                      ? "border-blue-200 focus:border-blue-500 focus:ring-blue-500/5"
-                      : "border-violet-200 focus:border-violet-500 focus:ring-violet-500/5"
+                    "w-full bg-white border-2 rounded-2xl px-8 py-6 text-3xl md:text-5xl font-black text-center transition-all uppercase shadow-sm",
+                    activeOrder.toScan === 0
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-700 placeholder:text-emerald-400 cursor-not-allowed"
+                      : "text-zinc-900 placeholder:text-zinc-200 focus:outline-none focus:ring-4",
+                    activeOrder.toScan > 0 && currentStep === "invoice" && "border-blue-200 focus:border-blue-500 focus:ring-blue-500/5",
+                    activeOrder.toScan > 0 && currentStep === "vendor" && "border-violet-200 focus:border-violet-500 focus:ring-violet-500/5"
                   )}
                   autoFocus
                 />
