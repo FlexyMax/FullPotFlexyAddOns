@@ -108,12 +108,58 @@ export default function Home() {
           <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4">
             API Endpoints
           </h2>
-          <div className="space-y-2 font-mono text-sm">
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="text-[10px] w-12 justify-center">GET</Badge>
-              <code className="text-zinc-700">/api/health</code>
-              <span className="text-zinc-400 text-xs">— System health check</span>
+          <div className="space-y-3 font-mono text-sm">
+
+            {/* Health */}
+            <div className="flex items-start gap-3">
+              <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
+              <div>
+                <code className="text-zinc-700">/api/health</code>
+                <p className="text-zinc-400 text-xs mt-0.5">System health check — returns DB connectivity and uptime.</p>
+              </div>
             </div>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* BAMS Payment */}
+            <div className="flex items-start gap-3">
+              <Badge className="text-[10px] w-14 justify-center shrink-0 mt-0.5 bg-blue-600">POST</Badge>
+              <div>
+                <code className="text-zinc-700">/api/bams/payment?request_uq=X</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Authorize.Net payment — reads request from DB, charges card, updates result.</p>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* BAMS Refund */}
+            <div className="flex items-start gap-3">
+              <Badge className="text-[10px] w-14 justify-center shrink-0 mt-0.5 bg-blue-600">POST</Badge>
+              <div>
+                <code className="text-zinc-700">/api/bams/refund?request_uq=X</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Authorize.Net refund — voids or refunds a prior transaction and updates DB.</p>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* Images */}
+            <div className="flex items-start gap-3">
+              <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
+              <div>
+                <code className="text-zinc-700">/api/images</code>
+                <p className="text-zinc-400 text-xs mt-0.5">
+                  Digital Ocean Spaces image listing — returns URLs from{" "}
+                  <span className="text-zinc-600">Fullpot/Product_Images/</span>.
+                </p>
+                <div className="mt-1.5 space-y-0.5 text-zinc-400 text-xs">
+                  <p><span className="text-zinc-500">?prefix=</span>Fullpot/Product_Images/ &nbsp;— folder path inside the bucket</p>
+                  <p><span className="text-zinc-500">?maxKeys=</span>200 &nbsp;— max results per page (1–1000)</p>
+                  <p><span className="text-zinc-500">?token=</span>X &nbsp;— continuation token for next page</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
