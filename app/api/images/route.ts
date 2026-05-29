@@ -12,7 +12,9 @@ function getS3Client() {
       accessKeyId: process.env.DO_SPACES_KEY!,
       secretAccessKey: process.env.DO_SPACES_SECRET!,
     },
-    forcePathStyle: false,
+    // forcePathStyle keeps the bucket in the URL path, avoiding virtual-hosted
+    // signing mismatches that occur with DO Spaces + AWS SDK v3
+    forcePathStyle: true,
   });
 }
 
