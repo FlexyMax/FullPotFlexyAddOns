@@ -78,7 +78,8 @@ export async function getScanOutHeader(dispatchUq: string) {
  * 
  * Flows:
  * 1. sp_flower_packing_box_control_verify(@lcinvbox_uq, @InvoiceNo)
- * 2. sp_flower_packing_box_control_insert_out(@lcpk_box_uq, @lcinvoice_box_uq, @lnbox)
+ * 2. Validate vendorBarcode[0..8] === compuesto (returned by step 1)
+ * 3. sp_flower_packing_box_control_insert_out(@lcpk_box_uq, @lcinvoice_box_uq, @lnbox)
  */
 export async function validateScanOutMatch(
   orderNo: string,
@@ -112,7 +113,22 @@ export async function validateScanOutMatch(
       return { success: false, message: "Invoice verification did not return pk_box_uq." };
     }
 
-    // 2. Validate Match and Insert Out
+    // 2. Validate that the first 8 chars of the vendor barcode match the compuesto field
+    const compuesto = ((verifyRow.compuesto as string) || "").trim();
+    const vendorPrefix = vendorCode.slice(0, 8).trim();
+
+    if (!compuesto) {
+      return { success: false, message: "Invoice verification did not return compuesto." };
+    }
+
+    if (vendorPrefix.toUpperCase() !== compuesto.toUpperCase()) {
+      return {
+        success: false,
+        message: `Vendor Label does not match. Expected prefix: ${compuesto}, got: ${vendorPrefix}`,
+      };
+    }
+
+    // 3. Validate Match and Insert Out
     // Extract the last 3 characters of the vendor label as an integer
     const vendorBoxRight = vendorCode.slice(-3);
     const lnbox = parseInt(vendorBoxRight, 10);
