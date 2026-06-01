@@ -113,18 +113,25 @@ export async function validateScanOutMatch(
       return { success: false, message: "Invoice verification did not return pk_box_uq." };
     }
 
-    // 2. Validate that the first 8 chars of the vendor barcode match the compuesto field
+    // 2. Validate vendor barcode against compuesto
+    // compuesto format : <3-char vendor><lote>          e.g. "CGR6620"  (no padding)
+    // vendorCode format: <3-char vendor><5-digit lote><3-digit seq>  e.g. "CGR06620009"
+    // Pad the lote portion of compuesto to 5 digits to build the expected 8-char prefix.
     const compuesto = ((verifyRow.compuesto as string) || "").trim();
-    const vendorPrefix = vendorCode.slice(0, 8).trim();
 
     if (!compuesto) {
       return { success: false, message: "Invoice verification did not return compuesto." };
     }
 
-    if (vendorPrefix.toUpperCase() !== compuesto.toUpperCase()) {
+    const compuestoVendor = compuesto.slice(0, 3);
+    const compuestoLote   = compuesto.slice(3);
+    const expectedPrefix  = compuestoVendor + compuestoLote.padStart(5, "0"); // e.g. "CGR06620"
+    const vendorPrefix    = vendorCode.slice(0, 8).trim();
+
+    if (vendorPrefix.toUpperCase() !== expectedPrefix.toUpperCase()) {
       return {
         success: false,
-        message: `Vendor Label does not match. Expected prefix: ${compuesto}, got: ${vendorPrefix}`,
+        message: `Vendor Label does not match. Expected prefix: ${expectedPrefix}, got: ${vendorPrefix}`,
       };
     }
 
