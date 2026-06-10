@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Barcode, CreditCard, Monitor, PackageSearch, Database } from "lucide-react";
+import { Barcode, CreditCard, Monitor, PackageSearch, Database, BookOpen } from "lucide-react";
+import Link from "next/link";
 
 const modules = [
   {
@@ -105,9 +106,18 @@ export default function Home() {
 
         {/* API Info */}
         <div className="mt-10 bg-white border border-zinc-200 rounded-2xl p-6">
-          <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400 mb-4">
-            API Endpoints
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400">
+              API Endpoints
+            </h2>
+            <Link
+              href="/docs"
+              className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Full API Reference →
+            </Link>
+          </div>
           <div className="space-y-3 font-mono text-sm">
 
             {/* Health */}
@@ -157,6 +167,17 @@ export default function Home() {
                   <p><span className="text-zinc-500">?maxKeys=</span>200 &nbsp;— max results per page (1–1000)</p>
                   <p><span className="text-zinc-500">?token=</span>X &nbsp;— continuation token for next page</p>
                 </div>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* Purchase Orders */}
+            <div className="flex items-start gap-3">
+              <Badge className="text-[10px] w-14 justify-center shrink-0 mt-0.5 bg-blue-600">POST</Badge>
+              <div>
+                <code className="text-zinc-700">/api/purchase-orders</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Creates a purchase order line against a prebook detail. Body: JSON with product, pricing, logistics, and farm details.</p>
               </div>
             </div>
 
