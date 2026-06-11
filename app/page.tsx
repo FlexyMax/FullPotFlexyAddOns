@@ -183,6 +183,17 @@ export default function Home() {
 
             <div className="border-t border-zinc-100" />
 
+            {/* Purchase Orders Update */}
+            <div className="flex items-start gap-3">
+              <Badge className="text-[10px] w-14 justify-center shrink-0 mt-0.5 bg-yellow-500 text-white">PUT</Badge>
+              <div>
+                <code className="text-zinc-700">/api/purchase-orders/:unico</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Updates an existing purchase order line by its unico ID. Body: same fields as POST except pbook IDs.</p>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100" />
+
             {/* Prebooks without PO */}
             <div className="flex items-start gap-3">
               <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
