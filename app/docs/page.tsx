@@ -93,6 +93,32 @@ const endpoints: Endpoint[] = [
     },
   },
   {
+    method: "GET",
+    path: "/api/prebooks-without-po",
+    description: "Returns prebook lines that have no purchase order yet, filtered by date, product type, and optional search term.",
+    sp: "sp_NC_prebook_box_without_po",
+    queryParams: [
+      { name: "date",         type: "string", required: true,  description: "Prebook date", example: "2026-06-15 or 20260615" },
+      { name: "product_type", type: "string", required: true,  description: "'FLOWERS' or 'HARDGOODS'", example: "FLOWERS" },
+      { name: "search",       type: "string", required: false, description: "Product name filter — blank returns all", example: "ANTHURIUM" },
+    ],
+    response: `{ data: Record<string, unknown>[], count: number }`,
+    example: {
+      response: `{
+  "data": [
+    {
+      "pbook_d_uq": "A1B2C3D4",
+      "product": "ANTHURIUM RED",
+      "grower": "FARM NAME",
+      "qty": 50,
+      "ship_date": "2026-06-15"
+    }
+  ],
+  "count": 1
+}`,
+    },
+  },
+  {
     method: "POST",
     path: "/api/purchase-orders",
     description: "Creates a purchase order line against a prebook detail. Sends the PO to the vendor with all pricing, logistics, and product details.",

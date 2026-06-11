@@ -181,6 +181,22 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="border-t border-zinc-100" />
+
+            {/* Prebooks without PO */}
+            <div className="flex items-start gap-3">
+              <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
+              <div>
+                <code className="text-zinc-700">/api/prebooks-without-po</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Prebook lines with no purchase order yet — filtered by date and product type.</p>
+                <div className="mt-1.5 space-y-0.5 text-zinc-400 text-xs">
+                  <p><span className="text-zinc-500">?date=</span>2026-06-15 &nbsp;— prebook date</p>
+                  <p><span className="text-zinc-500">?product_type=</span>FLOWERS &nbsp;— FLOWERS or HARDGOODS</p>
+                  <p><span className="text-zinc-500">?search=</span>ROSE &nbsp;— product filter (optional)</p>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
