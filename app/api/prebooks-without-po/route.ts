@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeRPC, sql } from "@/lib/db";
+import { normalizeSqlDate } from "@/lib/db/dates";
 
 /**
  * GET /api/prebooks-without-po
@@ -29,9 +30,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: true, message: "Missing required parameter: product_type" }, { status: 400 });
     }
 
-    // Normalize date: accept YYYY-MM-DD or YYYYMMDD → always send YYYYMMDD to SP
-    const normalized = date.replace(/-/g, "");
-    if (!/^\d{8}$/.test(normalized)) {
+    const normalized = normalizeSqlDate(date);
+    if (!normalized) {
       return NextResponse.json({ error: true, message: "Invalid date format. Use YYYY-MM-DD or YYYYMMDD." }, { status: 400 });
     }
 

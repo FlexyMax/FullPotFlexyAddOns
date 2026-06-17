@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeRPC, sql } from "@/lib/db";
+import { normalizeSqlDate } from "@/lib/db/dates";
 
 /**
  * PUT /api/purchase-orders/:unico
@@ -77,6 +78,16 @@ export async function PUT(
       );
     }
 
+    // ── Normalize dates (accepts YYYY-MM-DD or YYYYMMDD) ─────────────────────
+    const shipDate = normalizeSqlDate(body.ship_date);
+    if (!shipDate) {
+      return NextResponse.json({ error: true, message: "Invalid ship_date format. Use YYYY-MM-DD or YYYYMMDD." }, { status: 400 });
+    }
+    const pickupDate = body.pickup_date ? normalizeSqlDate(body.pickup_date) : null;
+    if (body.pickup_date && !pickupDate) {
+      return NextResponse.json({ error: true, message: "Invalid pickup_date format. Use YYYY-MM-DD or YYYYMMDD." }, { status: 400 });
+    }
+
     const result = await executeRPC("sp_flower_prebook_box_porder_update_pc", [
       { name: "lcunico",               type: sql.VarChar(8),    value: unico },
       { name: "lcgrower_uq",           type: sql.VarChar(8),    value: body.grower_uq },
@@ -92,7 +103,7 @@ export async function PUT(
       { name: "lnhandling",            type: sql.Numeric(10,2), value: Number(body.handling) },
       { name: "lnfreight",             type: sql.Numeric(10,2), value: Number(body.freight) },
       { name: "lnduties",              type: sql.Numeric(10,2), value: Number(body.duties) },
-      { name: "ldship_date",           type: sql.DateTime,      value: body.ship_date },
+      { name: "ldship_date",           type: sql.DateTime,      value: shipDate },
       { name: "llfood",                type: sql.Bit,           value: body.food ? 1 : 0 },
       { name: "lcpccode",              type: sql.VarChar(20),   value: body.pccode ?? "" },
       { name: "lcdetails",             type: sql.VarChar(250),  value: body.details ?? "" },
@@ -104,7 +115,7 @@ export async function PUT(
       { name: "lcfarm_item",           type: sql.VarChar(15),   value: body.farm_item ?? "" },
       { name: "llpickup_order",        type: sql.Bit,           value: body.pickup_order ? 1 : 0 },
       { name: "lcbuyer_uq",            type: sql.VarChar(8),    value: body.buyer_uq },
-      { name: "ldpickup_date",         type: sql.Date,          value: body.pickup_date ?? null },
+      { name: "ldpickup_date",         type: sql.Date,          value: pickupDate },
       { name: "lnpickup_value",        type: sql.Numeric(12,2), value: Number(body.pickup_value ?? 0) },
       { name: "lchandling_grower_uq",  type: sql.Char(8),       value: body.handling_grower_uq ?? null },
       { name: "lcpo_invoice",          type: sql.VarChar(20),   value: body.po_invoice ?? "" },
