@@ -110,13 +110,22 @@ export default function Home() {
             <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400">
               API Endpoints
             </h2>
-            <Link
-              href="/docs"
-              className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              Full API Reference →
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/docs"
+                className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Full API Reference →
+              </Link>
+              <Link
+                href="/api-docs"
+                className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Swagger UI →
+              </Link>
+            </div>
           </div>
           <div className="space-y-3 font-mono text-sm">
 
