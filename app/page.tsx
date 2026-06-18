@@ -208,6 +208,17 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="border-t border-zinc-100" />
+
+            {/* Growers */}
+            <div className="flex items-start gap-3">
+              <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
+              <div>
+                <code className="text-zinc-700">/api/growers</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Returns the full list of growers. No parameters.</p>
+              </div>
+            </div>
+
           </div>
         </div>
 

@@ -93,6 +93,21 @@ const endpoints: Endpoint[] = [
     },
   },
   {
+    method: "GET",
+    path: "/api/growers",
+    description: "Returns the full list of growers. No parameters.",
+    sp: "sp_NC_growers_list",
+    response: `{ data: Record<string, unknown>[], count: number }`,
+    example: {
+      response: `{
+  "data": [
+    { "grower_uq": "I9J0K1L2", "grower": "FARM NAME", "country": "ECUADOR" }
+  ],
+  "count": 1
+}`,
+    },
+  },
+  {
     method: "PUT",
     path: "/api/purchase-orders/:unico",
     description: "Updates an existing purchase order line identified by its unico ID.",
