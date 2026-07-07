@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     }
 
     const result = await executeRPC("sp_flower_prebook_box_porder_dates_growers_boxes_pc", [
-      { name: "ldShipDate",    type: sql.Date,        value: shipDate },
+      { name: "shipdate",      type: sql.DateTime,    value: shipDate },
       { name: "lcgrower_uq",  type: sql.VarChar(8),  value: growerUq },
       { name: "lcproduct_uq", type: sql.VarChar(8),  value: productUq },
     ]);
