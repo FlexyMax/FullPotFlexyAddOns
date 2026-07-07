@@ -3,6 +3,57 @@ import { executeRPC, sql } from "@/lib/db";
 import { normalizeSqlDate } from "@/lib/db/dates";
 
 /**
+ * GET /api/purchase-orders
+ *
+ * Lists purchase order lines filtered by ship date, grower, and product.
+ * Executes: sp_flower_prebook_box_porder_dates_growers_boxes_pc
+ *
+ * Query params:
+ *   ship_date    string  required  Farm shipping date (YYYY-MM-DD or YYYYMMDD)
+ *   grower_uq    string  optional  Grower ID — use '%' or omit for all growers
+ *   product_uq   string  optional  Product ID — use '%' or omit for all products
+ *
+ * Response:
+ *   { data: Record<string, unknown>[], count: number }
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const shipDateRaw = searchParams.get("ship_date");
+    const growerUq   = searchParams.get("grower_uq")  ?? "%";
+    const productUq  = searchParams.get("product_uq") ?? "%";
+
+    if (!shipDateRaw) {
+      return NextResponse.json(
+        { error: true, message: "Missing required parameter: ship_date" },
+        { status: 400 }
+      );
+    }
+
+    const shipDate = normalizeSqlDate(shipDateRaw);
+    if (!shipDate) {
+      return NextResponse.json(
+        { error: true, message: "Invalid ship_date format. Use YYYY-MM-DD or YYYYMMDD." },
+        { status: 400 }
+      );
+    }
+
+    const result = await executeRPC("sp_flower_prebook_box_porder_dates_growers_boxes_pc", [
+      { name: "ldShipDate",    type: sql.Date,        value: shipDate },
+      { name: "lcgrower_uq",  type: sql.VarChar(8),  value: growerUq },
+      { name: "lcproduct_uq", type: sql.VarChar(8),  value: productUq },
+    ]);
+
+    const data = (result.recordset ?? []) as Array<Record<string, unknown>>;
+    return NextResponse.json({ data, count: data.length });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("GET /api/purchase-orders error:", message);
+    return NextResponse.json({ error: true, message }, { status: 500 });
+  }
+}
+
+/**
  * POST /api/purchase-orders
  *
  * Creates a purchase order line against a prebook detail.

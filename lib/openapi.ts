@@ -186,6 +186,55 @@ export function buildOpenApiSpec(): OpenApiSpec {
       },
 
       "/api/purchase-orders": {
+        get: {
+          tags: ["Purchase Orders"],
+          summary: "List purchase order lines",
+          description:
+            "Lists PO lines filtered by ship date, with optional grower and product filters.\n\n" +
+            "SP: `sp_flower_prebook_box_porder_dates_growers_boxes_pc`",
+          parameters: [
+            {
+              name: "ship_date",
+              in: "query",
+              required: true,
+              schema: { type: "string" },
+              example: "2026-07-05",
+              description: "Farm shipping date — YYYY-MM-DD or YYYYMMDD",
+            },
+            {
+              name: "grower_uq",
+              in: "query",
+              required: false,
+              schema: { type: "string" },
+              example: "%",
+              description: "Grower ID — omit or use '%' for all growers",
+            },
+            {
+              name: "product_uq",
+              in: "query",
+              required: false,
+              schema: { type: "string" },
+              example: "%",
+              description: "Product ID — omit or use '%' for all products",
+            },
+          ],
+          responses: {
+            "200": {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      data: { type: "array", items: { type: "object" } },
+                      count: { type: "integer" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
         post: {
           tags: ["Purchase Orders"],
           summary: "Create a purchase order line",

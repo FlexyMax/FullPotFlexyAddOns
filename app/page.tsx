@@ -181,7 +181,23 @@ export default function Home() {
 
             <div className="border-t border-zinc-100" />
 
-            {/* Purchase Orders */}
+            {/* Purchase Orders — GET */}
+            <div className="flex items-start gap-3">
+              <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
+              <div>
+                <code className="text-zinc-700">/api/purchase-orders</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Lists PO lines filtered by ship date and optional grower/product.</p>
+                <div className="mt-1.5 space-y-0.5 text-zinc-400 text-xs">
+                  <p><span className="text-zinc-500">?ship_date=</span>2026-07-05 &nbsp;— farm shipping date (required)</p>
+                  <p><span className="text-zinc-500">?grower_uq=</span>% &nbsp;— grower ID or % for all (optional)</p>
+                  <p><span className="text-zinc-500">?product_uq=</span>% &nbsp;— product ID or % for all (optional)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* Purchase Orders — POST */}
             <div className="flex items-start gap-3">
               <Badge className="text-[10px] w-14 justify-center shrink-0 mt-0.5 bg-blue-600">POST</Badge>
               <div>
