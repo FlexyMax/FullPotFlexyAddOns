@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
       count:     results.length,
       updated:   results.filter(r => r.ok).map(r => r.key.replace(FOLDER, '')),
       failed:    failed.map(r => ({ file: r.key.replace(FOLDER, ''), status: r.status, detail: r.detail })),
+      _debug:    { keyPrefix: KEY.slice(0, 6) || '(empty)', secretLen: SECRET.length, bucket: BUCKET, region: REGION },
     });
   } catch (error) {
     console.error('[POST /api/images-publish]', error);
