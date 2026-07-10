@@ -162,7 +162,21 @@ export default function Home() {
 
             <div className="border-t border-zinc-100" />
 
-            {/* Images */}
+            {/* Images — make-public */}
+            <div className="flex items-start gap-3">
+              <Badge className="text-[10px] w-14 justify-center shrink-0 mt-0.5 bg-blue-600">POST</Badge>
+              <div>
+                <code className="text-zinc-700">/api/images/make-public</code>
+                <p className="text-zinc-400 text-xs mt-0.5">Sets all DO Spaces images matching a product ID prefix to public-read ACL. Requires <code>x-api-key</code> header.</p>
+                <div className="mt-1.5 space-y-0.5 text-zinc-400 text-xs">
+                  <p><span className="text-zinc-500">body:</span> {"{ productId: \"0281D1B1\" }"}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* Images — list */}
             <div className="flex items-start gap-3">
               <Badge variant="secondary" className="text-[10px] w-14 justify-center shrink-0 mt-0.5">GET</Badge>
               <div>

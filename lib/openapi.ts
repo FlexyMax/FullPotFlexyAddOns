@@ -143,6 +143,66 @@ export function buildOpenApiSpec(): OpenApiSpec {
         },
       },
 
+      "/api/images/make-public": {
+        post: {
+          tags: ["Images"],
+          summary: "Set product images to public-read",
+          description:
+            "Finds all objects under `Fullpot/Product_Images/<productId>*` in DO Spaces " +
+            "and sets each one's ACL to `public-read`.\n\n" +
+            "Requires the `x-api-key` header matching `INTERNAL_API_KEY`.",
+          parameters: [
+            {
+              name: "x-api-key",
+              in: "header",
+              required: true,
+              schema: { type: "string" },
+              description: "Internal API key — must match INTERNAL_API_KEY env var",
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["productId"],
+                  properties: {
+                    productId: {
+                      type: "string",
+                      description: "Product ID prefix to match (e.g. '0281D1B1')",
+                      example: "0281D1B1",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Files updated",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success:   { type: "boolean" },
+                      productId: { type: "string" },
+                      count:     { type: "integer" },
+                      updated:   { type: "array", items: { type: "string" } },
+                      failed:    { type: "array", items: { type: "string" } },
+                    },
+                  },
+                  example: { success: true, productId: "0281D1B1", count: 3, updated: ["0281D1B1-1.png", "0281D1B1-2.png", "0281D1B1-3.png"], failed: [] },
+                },
+              },
+            },
+            "404": { description: "No files found for that product ID" },
+            "401": { description: "Unauthorized — invalid or missing x-api-key" },
+          },
+        },
+      },
+
       "/api/images": {
         get: {
           tags: ["Images"],
