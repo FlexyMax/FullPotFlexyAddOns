@@ -65,27 +65,26 @@ function s3Request(method: string, path: string, queryStr: string, extraHeaders:
   });
 }
 
+// Uses the public (unauthenticated) bucket listing — same approach as /api/images,
+// which avoids SigV4 signing issues on Vercel while the bucket allows public reads.
 async function listMatchingKeys(prefix: string): Promise<string[]> {
   const all: string[] = [];
-  let token: string | null = null;
+  let token: string | undefined;
 
   do {
-    const params = new URLSearchParams();
-    params.set('list-type', '2');
-    params.set('max-keys', '1000');
-    params.set('prefix', prefix);
+    const params = new URLSearchParams({ 'list-type': '2', 'max-keys': '1000', prefix });
     if (token) params.set('continuation-token', token);
-    params.sort();
-    const qs = params.toString().replace(/\+/g, '%20');
 
-    const { body } = await s3Request('GET', '/', qs);
+    const res  = await fetch(`https://${HOST}/?${params}`);
+    const body = await res.text();
+
     const keys  = [...body.matchAll(/<Key>([^<]+)<\/Key>/g)].map(m => m[1]);
     const sizes = [...body.matchAll(/<Size>(\d+)<\/Size>/g)].map(m => parseInt(m[1]));
     keys.forEach((k, i) => { if (sizes[i] > 15) all.push(k); });
 
     token = body.includes('<IsTruncated>true</IsTruncated>')
-      ? (body.match(/<NextContinuationToken>([^<]+)<\/NextContinuationToken>/) ?? [])[1] ?? null
-      : null;
+      ? (body.match(/<NextContinuationToken>([^<]+)<\/NextContinuationToken>/) ?? [])[1]
+      : undefined;
   } while (token);
 
   return all;
