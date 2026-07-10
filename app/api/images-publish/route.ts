@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
       failed:   failed.map(r => r.key.replace(FOLDER, '')),
     });
   } catch (error) {
-    console.error('[POST /api/images/make-public]', error);
+    console.error('[POST /api/images-publish]', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

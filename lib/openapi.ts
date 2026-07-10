@@ -143,7 +143,7 @@ export function buildOpenApiSpec(): OpenApiSpec {
         },
       },
 
-      "/api/images/make-public": {
+      "/api/images-publish": {
         post: {
           tags: ["Images"],
           summary: "Set product images to public-read",
