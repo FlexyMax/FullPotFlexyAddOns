@@ -75,11 +75,13 @@ async function listMatchingKeys(prefix: string): Promise<string[]> {
   return all;
 }
 
-async function setPublic(objectKey: string): Promise<number> {
+async function setPublic(objectKey: string): Promise<{ status: number; detail: string }> {
   const encodedPath = '/' + objectKey.split('/').map(p => encodeS3URI(p)).join('/');
   const headers = buildAclHeaders(encodedPath);
   const res = await fetch(`https://${HOST}${encodedPath}?acl`, { method: 'PUT', headers });
-  return res.status;
+  const detail = await res.text();
+  if (res.status !== 200) console.error(`[images-publish] ACL PUT ${res.status} for ${objectKey}:`, detail);
+  return { status: res.status, detail };
 }
 
 /**
@@ -128,19 +130,19 @@ export async function POST(request: NextRequest) {
       return Response.json({ success: false, productId: safeId, count: 0, updated: [], failed: [], error: 'No files found with that product ID' }, { status: 404 });
     }
 
-    const results: { key: string; ok: boolean }[] = [];
+    const results: { key: string; ok: boolean; status: number; detail: string }[] = [];
     for (const key of keys) {
-      const status = await setPublic(key);
-      results.push({ key, ok: status === 200 });
+      const { status, detail } = await setPublic(key);
+      results.push({ key, ok: status === 200, status, detail });
     }
 
     const failed = results.filter(r => !r.ok);
     return Response.json({
-      success:  failed.length === 0,
+      success:   failed.length === 0,
       productId: safeId,
-      count:    results.length,
-      updated:  results.filter(r => r.ok).map(r => r.key.replace(FOLDER, '')),
-      failed:   failed.map(r => r.key.replace(FOLDER, '')),
+      count:     results.length,
+      updated:   results.filter(r => r.ok).map(r => r.key.replace(FOLDER, '')),
+      failed:    failed.map(r => ({ file: r.key.replace(FOLDER, ''), status: r.status, detail: r.detail })),
     });
   } catch (error) {
     console.error('[POST /api/images-publish]', error);
