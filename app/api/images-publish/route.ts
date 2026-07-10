@@ -1,5 +1,4 @@
 import { createHmac, createHash } from 'crypto';
-import { request as httpsRequest } from 'https';
 import { NextRequest } from 'next/server';
 
 export const runtime = 'nodejs';
@@ -24,45 +23,31 @@ function encodeS3URI(str: string) {
   return encodeURIComponent(str).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
 }
 
-function buildHeaders(method: string, path: string, queryStr: string, extraHeaders: Record<string, string> = {}) {
+// Canonical query string for ACL operations is "acl=" (key + empty value).
+function buildAclHeaders(encodedPath: string): Record<string, string> {
   const now         = new Date();
   const amzdate     = now.toISOString().replace(/[:-]|\.\d{3}/g, '').slice(0, 15) + 'Z';
   const datestamp   = amzdate.slice(0, 8);
   const payloadHash = hash('');
+  const canonicalQS = 'acl=';
 
   const allHeaders: Record<string, string> = {
     host: HOST,
+    'x-amz-acl': 'public-read',
     'x-amz-content-sha256': payloadHash,
     'x-amz-date': amzdate,
-    ...extraHeaders,
   };
 
   const signedHeadersList = Object.keys(allHeaders).sort();
   const canonicalHeaders  = signedHeadersList.map(k => `${k}:${allHeaders[k]}\n`).join('');
   const signedHeaders     = signedHeadersList.join(';');
-  const canonicalRequest  = [method, path, queryStr, canonicalHeaders, signedHeaders, payloadHash].join('\n');
+  const canonicalRequest  = ['PUT', encodedPath, canonicalQS, canonicalHeaders, signedHeaders, payloadHash].join('\n');
   const credentialScope   = `${datestamp}/${REGION}/s3/aws4_request`;
   const stringToSign      = `AWS4-HMAC-SHA256\n${amzdate}\n${credentialScope}\n${hash(canonicalRequest)}`;
   const signature         = sign(signingKey(SECRET, datestamp, REGION), stringToSign).toString('hex');
   const authorization     = `AWS4-HMAC-SHA256 Credential=${KEY}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
   return { ...allHeaders, Authorization: authorization };
-}
-
-function s3Request(method: string, path: string, queryStr: string, extraHeaders: Record<string, string> = {}): Promise<{ status: number; body: string }> {
-  const headers = buildHeaders(method, path, queryStr, extraHeaders);
-  return new Promise((resolve, reject) => {
-    const req = httpsRequest(
-      { method, hostname: HOST, path: `${path}${queryStr ? '?' + queryStr : ''}`, headers },
-      res => {
-        let body = '';
-        res.on('data', chunk => { body += chunk; });
-        res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
-      }
-    );
-    req.on('error', reject);
-    req.end();
-  });
 }
 
 // Uses the public (unauthenticated) bucket listing — same approach as /api/images,
@@ -91,9 +76,10 @@ async function listMatchingKeys(prefix: string): Promise<string[]> {
 }
 
 async function setPublic(objectKey: string): Promise<number> {
-  const encodedKey = objectKey.split('/').map(p => encodeS3URI(p)).join('/');
-  const { status } = await s3Request('PUT', `/${encodedKey}`, 'acl=', { 'x-amz-acl': 'public-read' });
-  return status;
+  const encodedPath = '/' + objectKey.split('/').map(p => encodeS3URI(p)).join('/');
+  const headers = buildAclHeaders(encodedPath);
+  const res = await fetch(`https://${HOST}${encodedPath}?acl`, { method: 'PUT', headers });
+  return res.status;
 }
 
 /**
